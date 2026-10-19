@@ -10,19 +10,31 @@ checks it and publishes the index.
 
 ## Add a kit
 
-1. Pack the kit and note the hash it prints.
+1. Pick the https address the kit file will be hosted at. One command packs
+   the kit, checks the file and writes the entry with the hash and size.
 
    ```sh
-   dart run orblit_asset:kit pack my-kit -o my-kit-1.0.0.opack
+   dart run orblit_asset:kit publish my-kit \
+     --url https://example.com/my-kit-1.0.0.opack \
+     --entries kits --notes "The first release."
    ```
 
-2. Host the file at an https address with a public host name. A GitHub
-   release works, and so does any server that sends the file. A redirect is
-   fine, because the hash is what is trusted.
-3. Add `kits/<publisher>/<slug>.json`. The publisher and the slug are the
-   ones in the kit's `kit.json`.
+   Run it in a clone of this repository, so `--entries kits` writes
+   `kits/<publisher>/<slug>.json`. The publisher and the slug are the ones in
+   the kit's `kit.json`. A version that is listed already is refused, so
+   raise `version` in `kit.json` for a new release.
+2. Upload `my-kit-1.0.0.opack`, the file `publish` wrote, so that it is
+   served at that address.
+3. Run `./tool/check.sh`. It downloads the file and lists every problem.
 4. Open a pull request. CI builds the index and lists every problem it
    finds.
+
+The editor does the first step too. Open Scene › Publish kit, name a folder of
+your project and the address, and copy the entry it shows into
+`kits/<publisher>/<slug>.json`.
+
+You can also write the entry by hand, as the next section shows. Use the hash
+that `kit pack` prints.
 
 ## The entry
 
