@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: orblit-kits
+
+      # The builder is in the engine repository, which is public. CI checks
+      # it out and points this repository at it, like the other Orblit
+      # repositories do. Nothing here needs a secret.
+      - uses: actions/checkout@v4
+        with:
+          repository: ChxisB/orblit
+          path: orblit
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.13.0
+
+      - name: Link the engine
+        working-directory: orblit-kits
+        run: ./tool/link_local.sh ../orblit
+
+      - name: Check
+        working-directory: orblit-kits
+        run: ./tool/check.sh
+
+  # Builds the index again and publishes it. Only a push to main gets here,
+  # so a pull request never publishes. A workflow_dispatch run rebuilds the
+  # index without a change, for when a host that was down is back.
+  publish:
+    name: Publish
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: orblit-kits
+      - uses: actions/checkout@v4
+        with:
+          repository: ChxisB/orblit
+          path: orblit
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.13.0
+      - name: Link the engine
+        working-directory: orblit-kits
+        run: ./tool/link_local.sh ../orblit
+      - name: Build
+        working-directory: orblit-kits
+        run: ./tool/build.sh site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: orblit-kits/site
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  # Checks each commit on a pull request against commitlint.config.mjs.
+  # Pull requests only, since a push to main has no range to check. It
+  # checks out the branch head, not the merge commit GitHub makes, so the
+  # range holds the branch's own commits and nothing else.
+  commits:
+    name: Commits
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx --yes @commitlint/cli@21 --from "origin/$BASE_BRANCH" --to HEAD
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}

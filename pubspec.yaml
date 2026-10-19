@@ -1,0 +1,16 @@
+name: orblit_kits
+description: >-
+  The index of kits for Orblit. Holds one entry file for each kit, and builds
+  the files the editor's kit browser reads.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  orblit_asset:
+    git:
+      url: https://github.com/ChxisB/orblit.git
+      path: packages/orblit_asset
+      ref: main
