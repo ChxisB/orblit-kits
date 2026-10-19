@@ -16,9 +16,9 @@ checks it and publishes the index.
    dart run orblit_asset:kit pack my-kit -o my-kit-1.0.0.opack
    ```
 
-2. Host the file at an https address. A GitHub release works, and so does
-   any server that sends the file. A redirect is fine, because the hash is
-   what is trusted.
+2. Host the file at an https address with a public host name. A GitHub
+   release works, and so does any server that sends the file. A redirect is
+   fine, because the hash is what is trusted.
 3. Add `kits/<publisher>/<slug>.json`. The publisher and the slug are the
    ones in the kit's `kit.json`.
 4. Open a pull request. CI builds the index and lists every problem it
@@ -44,7 +44,7 @@ checks it and publishes the index.
 | Key | What it is |
 | --- | --- |
 | `version` | Three whole numbers, such as `1.1.0`. A version is listed once. |
-| `url` | An https address of the kit file, up to 300 characters. |
+| `url` | An https address of the kit file, up to 300 characters, at a public host name. No IP address, `localhost`, port, space, `\`, `#` or `@`. |
 | `hash` | The hash `kit pack` printed. It is the hash of the pack. |
 | `bytes` | The size of the kit file. |
 | `released` | The day the version came out, as `2026-10-19`. |
@@ -61,7 +61,8 @@ withdraw a release, delete it from the list.
 
 For every release of every entry:
 
-- the file downloads from the url, up to 1040 MiB;
+- the file downloads from the url within ten minutes, up to the size the
+  entry gives;
 - the file is the size and has the hash the entry says;
 - every file inside has the hash the kit lists;
 - the kit passes the rules of `kit check`: names a person can safely write,
