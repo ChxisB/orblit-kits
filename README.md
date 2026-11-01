@@ -14,7 +14,7 @@ checks it and publishes the index.
    the kit, checks the file and writes the entry with the hash and size.
 
    ```sh
-   dart run orblit_asset:kit publish my-kit \
+   ./tool/kit.sh publish my-kit \
      --url https://example.com/my-kit-1.0.0.opack \
      --entries kits --notes "The first release."
    ```
@@ -34,7 +34,7 @@ your project and the address, and copy the entry it shows into
 `kits/<publisher>/<slug>.json`.
 
 You can also write the entry by hand, as the next section shows. Use the hash
-that `kit pack` prints.
+that `./tool/kit.sh pack` prints.
 
 ## The entry
 
@@ -57,7 +57,7 @@ that `kit pack` prints.
 | --- | --- |
 | `version` | Three whole numbers, such as `1.1.0`. A version is listed once. |
 | `url` | An https address of the kit file, up to 300 characters, at a public host name. No IP address, `localhost`, port, space, `\`, `#` or `@`. |
-| `hash` | The hash `kit pack` printed. It is the hash of the pack. |
+| `hash` | The hash `pack` printed. It is the hash of the pack. |
 | `bytes` | The size of the kit file. |
 | `released` | The day the version came out, as `2026-10-19`. |
 | `notes` | One line about what changed. Optional. |
@@ -77,7 +77,7 @@ For every release of every entry:
   entry gives;
 - the file is the size and has the hash the entry says;
 - every file inside has the hash the kit lists;
-- the kit passes the rules of `kit check`: names a person can safely write,
+- the kit passes the rules of `check`: names a person can safely write,
   a licence, and the limits on size and count;
 - the `kit.json` inside names the same publisher, slug and version as the
   entry.
@@ -102,10 +102,12 @@ Build it yourself:
 
 ```sh
 git clone https://github.com/ChxisB/orblit.git     # beside this one
-./tool/link_local.sh                                 # point at that checkout
 ./tool/check.sh                                      # build into a scratch folder
 ./tool/build.sh site                                 # build into ./site
 ```
+
+The scripts run `dotnet/Orblit.Kit` from that clone, so they need the .NET 10
+SDK. Set `ORBLIT_ENGINE` if the clone is somewhere else.
 
 The build downloads every release each time, so it needs a network.
 
