@@ -5,12 +5,14 @@ The index of kits for Orblit.
 To list a kit, add an entry file and open a pull request. The
 [README](README.md) says how. Talk about anything larger first, in an issue
 or on the [Discord](https://discord.gg/5DH7HuDUtJ). The builder lives in
-[ChxisB/orblit](https://github.com/ChxisB/orblit), in `packages/orblit_asset`.
+[ChxisB/orblit](https://github.com/ChxisB/orblit), in `dotnet/Orblit.Kit`.
 
 ## Checking your work
 
+It needs the .NET 10 SDK and a clone of `ChxisB/orblit` beside this one. Set
+`ORBLIT_ENGINE` to use another path.
+
 ```sh
-./tool/link_local.sh   # point at a local orblit checkout
 ./tool/check.sh
 ```
 

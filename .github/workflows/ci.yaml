@@ -15,20 +15,30 @@ jobs:
           path: orblit-kits
 
       # The builder is in the engine repository, which is public. CI checks
-      # it out and points this repository at it, like the other Orblit
-      # repositories do. Nothing here needs a secret.
+      # out the engine branch that has this branch's name, so a change here
+      # and the engine change it needs build together. Without one it uses
+      # the engine's default branch. Nothing here needs a secret.
+      - id: engine
+        run: |
+          branch="${{ github.head_ref || github.ref_name }}"
+          if git ls-remote --exit-code --heads \
+              https://github.com/ChxisB/orblit.git "$branch" > /dev/null; then
+            echo "Building against ChxisB/orblit@$branch"
+            echo "ref=$branch" >> "$GITHUB_OUTPUT"
+          else
+            echo "No matching engine branch; using its default"
+            echo "ref=" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
         with:
           repository: ChxisB/orblit
+          ref: ${{ steps.engine.outputs.ref }}
           path: orblit
 
-      - uses: dart-lang/setup-dart@v1
+      - uses: actions/setup-dotnet@v4
         with:
-          sdk: 3.13.0
-
-      - name: Link the engine
-        working-directory: orblit-kits
-        run: ./tool/link_local.sh ../orblit
+          dotnet-version: 10.0.x
 
       - name: Check
         working-directory: orblit-kits
@@ -56,12 +66,9 @@ jobs:
         with:
           repository: ChxisB/orblit
           path: orblit
-      - uses: dart-lang/setup-dart@v1
+      - uses: actions/setup-dotnet@v4
         with:
-          sdk: 3.13.0
-      - name: Link the engine
-        working-directory: orblit-kits
-        run: ./tool/link_local.sh ../orblit
+          dotnet-version: 10.0.x
       - name: Build
         working-directory: orblit-kits
         run: ./tool/build.sh site
